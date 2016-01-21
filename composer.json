@@ -1,0 +1,33 @@
+{
+  "name": "cooperaj/phpci-process-plugin",
+  "description": "PHPCI plugin for handling processes that should run throughout testing",
+  "type": "library",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Adam Cooper",
+      "email": "adam@networkpie.co.uk"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.3",
+    "symfony/process": "^3.0"
+  },
+  "require-dev": {
+    "block8/phpci": "1.6.x"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cooperaj\\PHPCI\\Plugin\\": "src/"
+    }
+  },
+  "extra": {
+    "phpci": {
+      "pluginNamespace": "Cooperaj\\PHPCI\\Plugin\\",
+      "suppliedPlugins": [
+        {"name": "Process", "class": "Process"}
+      ]
+    }
+  }
+}
