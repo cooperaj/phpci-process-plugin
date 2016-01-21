@@ -4,6 +4,8 @@ namespace Cooperaj\PHPCI\Plugin;
 
 use PHPCI\Builder;
 use PHPCI\Model\Build;
+use PHPCI\Plugin;
+use PHPCI\ZeroConfigPlugin;
 use Symfony\Component\Process\Process as SymfonyProcess;
 
 /**
@@ -12,7 +14,7 @@ use Symfony\Component\Process\Process as SymfonyProcess;
  * @package      PHPCI
  * @subpackage   Plugins
  */
-class Process implements \PHPCI\Plugin
+class Process implements Plugin, ZeroConfigPlugin
 {
     static $instances;
 
@@ -37,6 +39,23 @@ class Process implements \PHPCI\Plugin
 
         $this->runningProcesses = array();
         self::$instances[] = $this;
+    }
+
+    /**
+     * Check if this plugin can be executed.
+     *
+     * @param $stage
+     * @param Builder $builder
+     * @param Build $build
+     *
+     * @return bool
+     */
+    public static function canExecute($stage, Builder $builder, Build $build)
+    {
+        if ($stage == 'setup') {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -73,6 +92,6 @@ class Process implements \PHPCI\Plugin
 }
 
 if (function_exists('pcntl_signal')) {
-    pcntl_signal(SIGTERM, ['Cooperaj\PHPCI\Process', 'stopRunningJobs']);
+    pcntl_signal(SIGTERM, ['Cooperaj\PHPCI\Plugin\Process', 'stopRunningJobs']);
 }
-register_shutdown_function(['Cooperaj\PHPCI\Process', 'stopRunningJobs']);
+register_shutdown_function(['Cooperaj\PHPCI\Plugin\Process', 'stopRunningJobs']);
