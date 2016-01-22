@@ -10,11 +10,6 @@ class ProcessManager
 
     private function __construct()
     {
-        if (self::$instance !== null) {
-            throw new \Exception(
-                'Unable to instantiate more then one process manager, reuse the one you already have');
-        }
-
         $this->processes = array();
     }
 
