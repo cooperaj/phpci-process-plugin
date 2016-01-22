@@ -19,14 +19,15 @@
   },
   "autoload": {
     "psr-4": {
-      "Cooperaj\\PHPCI\\Plugin\\": "src/"
+      "Cooperaj\\PHPCI\\": "src/"
     }
   },
   "extra": {
     "phpci": {
       "pluginNamespace": "Cooperaj\\PHPCI\\Plugin\\",
       "suppliedPlugins": [
-        {"name": "Process", "class": "Process"}
+        {"name": "BackgroundProcesses", "class": "BackgroundProcesses"},
+        {"name": "StopBackgroundProcesses", "class": "StopBackgroundProcesses"}
       ]
     }
   }

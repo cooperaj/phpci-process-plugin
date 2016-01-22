@@ -1,97 +1,51 @@
 <?php
 
-namespace Cooperaj\PHPCI\Plugin;
+namespace Cooperaj\PHPCI;
 
-use PHPCI\Builder;
-use PHPCI\Model\Build;
-use PHPCI\Plugin;
-use PHPCI\ZeroConfigPlugin;
-use Symfony\Component\Process\Process as SymfonyProcess;
+use Symfony\Component\Process\PhpProcess;
+use Symfony\Component\Process\ProcessBuilder;
 
-/**
- * Process Plugin - Allows PHPCI to setup and manage long running processes throughout the build.
- * @author       Adam Cooper <adam@networkpie.co.uk>
- * @package      PHPCI
- * @subpackage   Plugins
- */
-class Process implements Plugin, ZeroConfigPlugin
+class Process
 {
-    static $instances;
+    /** @var ProcessBuilder $builder  */
+    private $builder;
 
-    protected $phpci;
-    protected $build;
-    protected $processCmds;
-    protected $runningProcesses;
+    /** @var PhpProcess $symfonyProcess */
+    private $symfonyProcess;
 
-    /**
-     * Constructor
-     *
-     * @param Builder $phpci
-     * @param Build   $build
-     * @param array   $options
-     */
-    public function __construct(Builder $phpci, Build $build, array $options = array())
+    public function __construct($cmd)
     {
-        $this->build = $build;
-        $this->phpci = $phpci;
+        $this->builder = new ProcessBuilder();
+        $this->builder->setPrefix('exec');
 
-        $this->processCmds = $options;
+        $this->builder->setArguments(explode(' ', $cmd));
 
-        $this->runningProcesses = array();
-        self::$instances[] = $this;
+        $this->symfonyProcess = $this->builder->getProcess();
     }
 
-    /**
-     * Check if this plugin can be executed.
-     *
-     * @param $stage
-     * @param Builder $builder
-     * @param Build $build
-     *
-     * @return bool
-     */
-    public static function canExecute($stage, Builder $builder, Build $build)
+    public function start()
     {
-        if ($stage == 'setup') {
-            return true;
-        }
-        return false;
+        $this->symfonyProcess->start();
+
+        // give the new process a bit of breathing room
+        sleep(2);
     }
 
-    /**
-     * Executes processes
-     */
-    public function execute()
+    public function stop()
     {
-        try {
-            foreach ($this->processCmds as $cmd) {
-                // build the command
-                $cmd = 'cd %s && ' . $cmd;
-                if (IS_WIN) {
-                    $cmd = 'cd /d %s && ' . $cmd;
-                }
+        $this->symfonyProcess->stop();
 
-                $process = new SymfonyProcess($cmd);
-                $process->start();
-
-                $runningProcesses[] = $process;
-            }
-        } catch (\Exception $ex) {
-            $this->phpci->logFailure($ex->getMessage());
-            return false;
-        }
-        return true;
+        // give the new process a bit of breathing room
+        sleep(2);
     }
 
-    static function stopRunningJobs()
+    public function getOutput()
     {
-        foreach (self::$instances as $instance) {
-            if ($instance) unset($instance);
-        }
+        return $this->symfonyProcess->getOutput();
+    }
+
+    public function getPid()
+    {
+        return $this->symfonyProcess->getPid();
     }
 }
-
-if (function_exists('pcntl_signal')) {
-    pcntl_signal(SIGTERM, ['Cooperaj\PHPCI\Plugin\Process', 'stopRunningJobs']);
-}
-register_shutdown_function(['Cooperaj\PHPCI\Plugin\Process', 'stopRunningJobs']);
