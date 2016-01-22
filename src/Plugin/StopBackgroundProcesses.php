@@ -63,8 +63,6 @@ class StopBackgroundProcesses implements Plugin, ZeroConfigPlugin
     {
         try {
             $this->processManager->stopAllProcesses();
-
-            $this->phpci->log('Processes Stopped');
         } catch (\Exception $ex) {
             $this->phpci->logFailure($ex->getMessage());
             return false;
