@@ -65,11 +65,18 @@ class BackgroundProcesses implements Plugin, ZeroConfigPlugin
     {
         try {
             foreach ($this->processCmds as $cmd) {
+                $cmd = $this->phpci->interpolate($cmd);
+
+                $phpci = $this->phpci;
+                $phpci->log($cmd);
+
                 $process = $this->processManager->createProcess($cmd);
 
-                $process->start();
+                $process->start(function ($o, $bytes) use ($phpci) {
+                    $this->phpci->log($o.' '.$bytes);
+                });
 
-                $this->phpci->log($process->getOutput() . 'PID: ' . $process->getPid());
+                $this->phpci->log('PID: ' . $process->getPid());
             }
         } catch (\Exception $ex) {
             $this->phpci->logFailure($ex->getMessage());
