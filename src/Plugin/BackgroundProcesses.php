@@ -68,8 +68,7 @@ class BackgroundProcesses implements Plugin, ZeroConfigPlugin
             foreach ($this->processCmds as $cmd) {
                 $cmd = $this->phpci->interpolate($cmd);
 
-                $phpci = $this->phpci;
-                $phpci->log($cmd);
+                $this->phpci->log($cmd);
 
                 $process = $this->processManager->createProcess($cmd);
 
