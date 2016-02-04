@@ -46,7 +46,7 @@ class BackgroundProcesses implements Plugin, ZeroConfigPlugin
      *
      * @param $stage
      * @param Builder $builder
-     * @param Build $build
+     * @param Build   $build
      *
      * @return bool
      */
@@ -55,6 +55,7 @@ class BackgroundProcesses implements Plugin, ZeroConfigPlugin
         if ($stage == 'setup') {
             return true;
         }
+
         return false;
     }
 
@@ -65,16 +66,25 @@ class BackgroundProcesses implements Plugin, ZeroConfigPlugin
     {
         try {
             foreach ($this->processCmds as $cmd) {
+                $cmd = $this->phpci->interpolate($cmd);
+
+                $this->phpci->log($cmd);
+
                 $process = $this->processManager->createProcess($cmd);
 
-                $process->start();
+                // Starts a proccess and logs it's output to PHPCI
+                $process->start(function ($type, $buffer) {
+                    $this->phpci->log($type.' '.$buffer);
+                });
 
-                $this->phpci->log($process->getOutput() . 'PID: ' . $process->getPid());
+                $this->phpci->log('PID: '.$process->getPid());
             }
         } catch (\Exception $ex) {
             $this->phpci->logFailure($ex->getMessage());
+
             return false;
         }
+
         return true;
     }
 }

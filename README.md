@@ -16,6 +16,7 @@ setup:
     Cooperaj\PHPCI\Plugin\BackgroundProcesses:
         - "mailcatcher --ip 0.0.0.0 --foreground"
         - "someotherdaemon --always-run-in-foreground"
+        - "SOME_ENVIRONMENT_VARIABLE=Some_value some_script with --parameter=value"
 ```
 
 If you're using the PHPCI daemon to run your builds you'll also need to run the Stop plugin
